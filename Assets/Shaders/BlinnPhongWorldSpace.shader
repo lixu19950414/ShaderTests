@@ -109,7 +109,7 @@
 				half3 ambient = UNITY_LIGHTMODEL_AMBIENT.rgb;
 			
 				// Diffuse
-				half3 diffuse = saturate(dot(worldLightDir, worldNormal)) * albedo;
+				half3 diffuse = saturate(dot(worldLightDir, worldNormal));
 
 				// Specular
 				half3 halfVec = normalize(worldViewDir + worldLightDir);
