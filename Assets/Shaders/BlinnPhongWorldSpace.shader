@@ -141,7 +141,7 @@
 			{
 				SHADOW_CASTER_FRAGMENT(i);
 			}
-				ENDCG
-			}
+			ENDCG
 		}
+	}
 }
