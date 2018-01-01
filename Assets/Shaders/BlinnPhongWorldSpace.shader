@@ -20,6 +20,8 @@
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
+			// 应用到了光照衰减，因此需要使用这个宏
+			#pragma multi_compile_fwdbase
 			
 			#include "UnityCG.cginc"
 			#include "Lighting.cginc"
@@ -47,11 +49,12 @@
 				float4 pos : SV_POSITION;
 				float4 uv : TEXCOORD0;
 				float3 worldPos: TEXCOORD1;
+				SHADOW_COORDS(2)
 				// 切线空间->世界空间变换矩阵
-				half3 T2W_row0 : TEXCOORD2;
-				half3 T2W_row1 : TEXCOORD3;
-				half3 T2W_row2 : TEXCOORD4;
-				SHADOW_COORDS(5)
+				half3 T2W_row0 : TEXCOORD3;
+				half3 T2W_row1 : TEXCOORD4;
+				half3 T2W_row2 : TEXCOORD5;
+				
 			};
 
 			v2f vert (a2v v)
@@ -106,11 +109,9 @@
 				half3 specular = pow(saturate(dot(halfVec, worldNormal)), _Gloss) * albedo * _Specular;
 
 				// 计算阴影&光照衰减
-				// UNITY_LIGHT_ATTENUATION(atten, i, i.worldPos);
-				fixed shadow = SHADOW_ATTENUATION(i);
+				UNITY_LIGHT_ATTENUATION(atten, i, i.worldPos);
 
-				// return fixed4(ambient + (diffuse + specular) * shadow, 1.0);
-				return fixed4(shadow, 0, 0, 1.0);
+				return fixed4(ambient + (diffuse + specular) * atten, 1.0);
 			}
 			ENDCG
 		}
