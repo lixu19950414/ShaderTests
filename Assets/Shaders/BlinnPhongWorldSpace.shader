@@ -54,6 +54,7 @@
 				half3 T2W_row0 : TEXCOORD3;
 				half3 T2W_row1 : TEXCOORD4;
 				half3 T2W_row2 : TEXCOORD5;
+				half3 pointLights : TEXCOORD6;
 				
 			};
 
@@ -78,6 +79,12 @@
 				o.T2W_row1 = fixed3(worldTangent.y, worldBionormal.y, worldNormal.y);
 				o.T2W_row2 = fixed3(worldTangent.z, worldBionormal.z, worldNormal.z);
 
+				o.pointLights = Shade4PointLights(
+					unity_4LightPosX0, unity_4LightPosY0, unity_4LightPosZ0,
+					unity_LightColor[0], unity_LightColor[1], unity_LightColor[2], unity_LightColor[3],
+					unity_4LightAtten0,
+					o.worldPos, worldNormal);
+
 				TRANSFER_SHADOW(o);
 				return o;
 			}
@@ -96,22 +103,25 @@
 				worldNormal = fixed3(dot(i.T2W_row0, worldNormal), dot(i.T2W_row1, worldNormal), dot(i.T2W_row2, worldNormal));
 
 				// 计算albedo
-				float3 albedo = _Albedo.xyz * tex2D(_MainTex, i.uv.xy).xyz * _LightColor0;
+				float3 albedo = _Albedo.xyz * tex2D(_MainTex, i.uv.xy).xyz;
 
 				// Amibient
-				half3 ambient = UNITY_LIGHTMODEL_AMBIENT.rgb * albedo;
+				half3 ambient = UNITY_LIGHTMODEL_AMBIENT.rgb;
 			
 				// Diffuse
 				half3 diffuse = saturate(dot(worldLightDir, worldNormal)) * albedo;
 
 				// Specular
 				half3 halfVec = normalize(worldViewDir + worldLightDir);
-				half3 specular = pow(saturate(dot(halfVec, worldNormal)), _Gloss) * albedo * _Specular;
+				half3 specular = pow(saturate(dot(halfVec, worldNormal)), _Gloss) * _Specular;
+
+				// PointLights
+				half3 pointLightDiffuse = i.pointLights * albedo;
 
 				// 计算阴影&光照衰减
 				UNITY_LIGHT_ATTENUATION(atten, i, i.worldPos);
 
-				return fixed4(ambient + (diffuse + specular) * atten, 1.0);
+				return fixed4(pointLightDiffuse + ambient + (diffuse + specular) * atten * albedo * _LightColor0, 1.0);
 			}
 			ENDCG
 		}
