@@ -63,8 +63,8 @@
 				o.pos = UnityObjectToClipPos(v.vertex);
 
 				// 转换纹理坐标
-				o.uv.xy = v.texcoord.xy * _MainTex_ST.xy + _MainTex_ST.zw;
-				o.uv.zw = v.texcoord.xy * _BumpMap_ST.xy + _BumpMap_ST.zw;
+				o.uv.xy = TRANSFORM_TEX(v.texcoord.xy, _MainTex);
+				o.uv.zw = TRANSFORM_TEX(v.texcoord.xy, _BumpMap);
 
 				// 计算顶点世界坐标
 				o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
