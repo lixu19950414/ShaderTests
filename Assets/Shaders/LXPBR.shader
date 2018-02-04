@@ -89,12 +89,13 @@
 				// 从通道图中取数据 r通道为metallic, alpha通道为smoothness，转到roughness
 				half4 metalTex = tex2D(_Metal,i.uv);
 				half metallic = metalTex.r;
-				float roughness = 1.0 - metalTex.a;
+				float smoothness = metalTex.a * _SmoothScale;
+				float roughness = 1.0 - smoothness;
 
 				// 计算a和a2以及f0
 				float a = roughness * roughness;
 				float a2 = a * a;
-				float f0 = LoH * metalTex.a * _SmoothScale; // 菲涅尔系数，根据Disney的理论和LoH有关，还要和粗糙度有关，越光滑，菲涅尔系数是越高滴
+				float f0 = LoH * smoothness; // 菲涅尔系数，根据Disney的理论和LoH有关，还要和粗糙度有关，越光滑，菲涅尔系数是越高滴
 
 				// 光照颜色
 				float3 attenColor = SHADOW_ATTENUATION(i) * _LightColor0.xyz;
